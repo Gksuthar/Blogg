@@ -17,7 +17,7 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: "User does not exist" });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await compare(password, user.password);
         if (!isMatch) {
             return res.json({ success: false, message: "Invalid credentials" });
         }
@@ -53,10 +53,10 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Weak password (minimum 8 characters)" });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        // const salt = await genSalt(10);
+        // const hashedPassword = await bcrypt.hash(password, salt);
 
-        const newUser = new userModel({ name, email, password: hashedPassword });
+        const newUser = new userModel({ name, email, password});
         const user = await newUser.save();
 
         const token = createToken(user._id);
