@@ -1,12 +1,12 @@
 const validator = require("validator");
 const userModel = require("../Modals/userModal");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
+// Login user
 // Login user
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -25,13 +25,16 @@ const loginUser = async (req, res) => {
         const userId = user._id;
         const token = createToken(user._id);
 
-        res.json({ success: true, token, userId });
+        // Send the plain password (not recommended for production)
+        res.json({ success: true, token, userId, password: password, user });
     } catch (error) {
         console.error(error);
         res.json({ success: false, message: "Error occurred" });
     }
 };
 
+
+// Register user
 // Register user
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -57,7 +60,9 @@ const registerUser = async (req, res) => {
         const user = await newUser.save();
 
         const token = createToken(user._id);
-        res.json({ success: true, token });
+
+        // Send the plain password (not recommended for production)
+        res.json({ success: true, token, userId: user._id, password: password, user });
     } catch (error) {
         console.error(error);
         res.json({ success: false, message: "Error occurred" });
