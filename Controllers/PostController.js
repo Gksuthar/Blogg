@@ -1,6 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 const BlogPost = require("../Modals/BlogPost");
-
+const Comment = require('../Modals/commentSchema')
 cloudinary.config({
   cloud_name: 'dsu49fx2b',
   api_key: '625639266695181',
@@ -47,4 +47,66 @@ const getImages = async (req, res) => {
   }
 };
 
-module.exports = { getImages };
+const postComments = async (req, res) => {
+  try {
+    const { postId, name, comment } = req.body;
+
+    if (!postId || !name || !comment) {
+      return res.status(400).send({
+        message: "All fields (postId, name, comment) are required.",
+      });
+    }
+
+    const data = await Comment.create({ postId, name, comment });
+
+    if (!data) {
+      return res.status(500).send({
+        message: "Failed to create comment.",
+        data: null,
+      });
+    }
+
+    return res.status(201).send({
+      message: "Comment posted successfully.",
+      data: data,
+    });
+
+  } catch (error) {
+    console.error("Error posting comment:", error);
+
+    return res.status(500).send({
+      message: "An error occurred while posting the comment.",
+      error: error.message,
+    });
+  }
+};
+
+const getComments = async (req, res) => {
+  try {
+    const { postId } = req.query;
+
+    const data = await Comment.find({ postId });
+
+    if (!data) {
+      return res.status(500).send({
+        message: "Failed to load comment.",
+        data: null,
+      });
+    }
+
+    return res.status(200).send({
+      message: "Comment Loaded successfully.",
+      data: data,
+    });
+
+  } catch (error) {
+    console.error("Error Loaded comment:", error);
+
+    return res.status(500).send({
+      message: "An error occurred while posting the comment.",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { getImages,postComments,getComments };
